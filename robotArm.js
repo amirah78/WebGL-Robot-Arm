@@ -13,7 +13,7 @@ const LOWER = 2;
 const GRIPPER = 3;
 
 // Angles (driven by sliders)
-var theta = [0, 0, 0, 15]; // start slightly open
+var theta = [0, 0, 0, 0]; // start slightly open
 
 // Proportions (tuned)
 const BASE_H = 2.8,
