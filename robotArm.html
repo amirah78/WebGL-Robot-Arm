@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>WebGL Robot Arm</title>
@@ -41,23 +42,20 @@
 
     <div>
         <p>Base</p>
-        <input type="range" min="-180" max="180" value="0"
-               oninput="theta[0]=this.value">
+        <input type="range" min="-180" max="180" value="0" oninput="theta[0]=this.value">
 
         <p>Upper Arm</p>
-        <input type="range" min="-90" max="90" value="0"
-               oninput="theta[1]=this.value">
+        <input type="range" min="-90" max="90" value="0" oninput="theta[1]=this.value">
 
         <p>Lower Arm</p>
-        <input type="range" min="-90" max="90" value="0"
-               oninput="theta[2]=this.value">
+        <input type="range" min="-90" max="90" value="0" oninput="theta[2]=this.value">
 
         <p>Gripper</p>
-        <input type="range" min="-40" max="40" value="0"
-               oninput="theta[3]=this.value">
+        <input type="range" min="-40" max="40" value="0" oninput="theta[3]=this.value">
     </div>
 
     <!-- Load JS LAST -->
     <script src="robotArm.js"></script>
 </body>
+
 </html>
