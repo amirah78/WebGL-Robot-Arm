@@ -1,19 +1,12 @@
-precision mediump float;
+attribute vec4 vPosition;
+attribute vec4 vColor;
 
-// Attributes
-attribute vec3 aPos;
-attribute vec3 aColor;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
 
-// Varying to fragment shader
-varying vec3 vColor;
+varying vec4 fColor;
 
-// Uniform matrices
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-
-void main()
-{
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
-    vColor = aColor;
+void main() {
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    fColor = vColor;
 }
