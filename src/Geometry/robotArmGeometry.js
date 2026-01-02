@@ -6,8 +6,8 @@ export const UPPER_JOINT = 1;
 export const LOWER_JOINT = 2;
 export const GRIPPER_JOINT = 3;
 
-// Mutable joint angles (driven externally)
-export const theta = [0, 0, 0, 0];
+// Joint angles (degrees, driven externally)
+export const theta = [0, 0, 0, -40];
 
 // ==================================================
 // GEOMETRY BUILD (SHARED CUBE MESH)
@@ -38,54 +38,64 @@ export function buildColoredCube(points, colors) {
 }
 
 // ==================================================
-// ROBOT DIMENSIONS (PHYSICAL SHAPE)
+// ROBOT DIMENSIONS
 // ==================================================
 const BaseDims = { w: 5.5, h: 2.8, d: 3.5 };
 const ArmDims = { w: 0.7, h: 4.2, d: 0.7 };
 const GripDims = { w: 0.35, h: 2.0, d: 0.35 };
-
-const GRIPPER_SPREAD = 0.55;
-const GRIPPER_V_ANGLE = 25;
-
 // ==================================================
-// SCENE DESCRIPTION (PURE DATA, NO WEBGL)
+// SCENE DESCRIPTION (PURE DATA)
 // ==================================================
 export function computeRobotDrawList() {
   const draws = [];
 
+  // World → base
   let M = mat4();
   M = mult(M, translate(0, -6.5, 0));
 
-  // ---------- BASE ----------
+  // ---------------- BASE ----------------
   M = mult(M, rotateY(theta[BASE_JOINT]));
   draws.push(box(M, BaseDims));
 
-  // ---------- UPPER ARM ----------
+  // ---------------- UPPER ARM ----------------
   M = mult(M, translate(0, BaseDims.h, 0));
   M = mult(M, rotateZ(theta[UPPER_JOINT]));
   draws.push(box(M, ArmDims));
 
-  // ---------- LOWER ARM ----------
+  // ---------------- LOWER ARM ----------------
   M = mult(M, translate(0, ArmDims.h, 0));
   M = mult(M, rotateZ(theta[LOWER_JOINT]));
   draws.push(box(M, ArmDims));
 
-  // ---------- GRIPPER JOINT ----------
+  // ---------------- GRIPPER JOINT ----------------
   M = mult(M, translate(0, ArmDims.h, 0));
   const joint = M;
 
-  // LEFT FINGER
-  let L = mult(joint, translate(GRIPPER_SPREAD, 0, 0));
-  L = mult(L, rotateZ(GRIPPER_V_ANGLE + theta[GRIPPER_JOINT]));
-  L = mult(L, translate(0, GripDims.h / 2, 0));
-  draws.push(box(L, GripDims));
+  // ---------------- LEFT FINGER ----------------
+  {
+    let F = joint;
 
-  // RIGHT FINGER
-  let R = mult(joint, translate(-GRIPPER_SPREAD, 0, 0));
-  R = mult(R, rotateZ(-GRIPPER_V_ANGLE - theta[GRIPPER_JOINT]));
-  R = mult(R, translate(0, GripDims.h / 2, 0));
-  draws.push(box(R, GripDims));
+    // hinge rotation
+    F = mult(F, rotateZ(theta[GRIPPER_JOINT]));
 
+    // move cube so bottom face sits on hinge
+    F = mult(F, translate(0, GripDims.h / 2, 0));
+
+    draws.push(box(F, GripDims));
+  }
+
+  // ---------------- RIGHT FINGER ----------------
+  {
+    let F = joint;
+
+    // mirrored hinge rotation
+    F = mult(F, rotateZ(-theta[GRIPPER_JOINT]));
+
+    // move cube so bottom face sits on hinge
+    F = mult(F, translate(0, GripDims.h / 2, 0));
+
+    draws.push(box(F, GripDims));
+  }
   return draws;
 }
 
