@@ -38,8 +38,8 @@ window.onload = async function () {
   gl.enable(gl.DEPTH_TEST);
 
   // ------------------ SHADERS ------------------
-  const vsSource = await loadText("Shader/vertexShader.glsl");
-  const fsSource = await loadText("Shader/fragmentShader.glsl");
+  const vsSource = await loadText("src/Shader/vertexShader.glsl");
+  const fsSource = await loadText("src/Shader/fragmentShader.glsl");
 
   const program = createProgramFromSources(gl, vsSource, fsSource);
   gl.useProgram(program);
