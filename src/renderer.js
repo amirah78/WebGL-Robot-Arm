@@ -11,6 +11,9 @@ export function createRenderer(gl, program) {
     projectionMatrix: gl.getUniformLocation(program, "projectionMatrix"),
   };
 
+  // ------------------ INTERNAL STATE ------------------
+  let viewMatrix = mat4(); // camera
+
   // ------------------ BUFFER HELPERS ------------------
   function createBuffer(data, size) {
     const buffer = gl.createBuffer();
@@ -27,8 +30,11 @@ export function createRenderer(gl, program) {
   }
 
   // ------------------ FRAME SETUP ------------------
-  function beginFrame(projectionMatrix) {
+  function beginFrame(projectionMatrix, newViewMatrix) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // store view matrix once per frame
+    viewMatrix = newViewMatrix;
 
     gl.uniformMatrix4fv(
       uniforms.projectionMatrix,
@@ -38,19 +44,21 @@ export function createRenderer(gl, program) {
   }
 
   // ------------------ DRAW CALL ------------------
-  function drawBox(mesh, modelMatrix, scale) {
+  function drawBox(mesh, modelMatrix, scale, offset, count) {
     // modelMatrix * scale * translate-to-base
     let M = mult(
       modelMatrix,
       mult(translate(0, scale.h / 2, 0), scaleMatrix(scale))
     );
 
+    const MV = mult(viewMatrix, M);
+
     gl.uniformMatrix4fv(uniforms.modelViewMatrix, false, flatten(M));
 
     bindAttribute(mesh.position, attribs.position);
     bindAttribute(mesh.color, attribs.color);
 
-    gl.drawArrays(gl.TRIANGLES, 0, mesh.vertexCount);
+    gl.drawArrays(gl.TRIANGLES, offset, count);
   }
 
   // ------------------ PUBLIC API ------------------

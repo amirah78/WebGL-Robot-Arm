@@ -2,11 +2,12 @@
 import { loadText } from "./utils/io.js";
 import { createProgramFromSources } from "./utils/shaderUtils.js";
 import {
-  buildColoredCube,
+  buildRobotArm,
   computeRobotDrawList,
 } from "./Geometry/robotArmGeometry.js";
 import { createRenderer } from "./renderer.js";
 import { theta } from "./Geometry/robotArmGeometry.js";
+import { buildCubeObject, computeCubeDrawList } from "./Geometry/cubeGeometry.js";
 
 function wireSliders() {
   document.getElementById("base").oninput = (e) =>
@@ -48,9 +49,26 @@ window.onload = async function () {
   const renderer = createRenderer(gl, program);
 
   // ------------------ GEOMETRY ------------------
+  const pointsRobotArm = [];
+  const colorsRobotArm = [];
+  const pointsCubeObject = [];
+  const colorsCubeObject = [];
+
+  // robot arm geometry
+  buildRobotArm(pointsRobotArm, colorsRobotArm);
+  // cube object geometry
+  buildCubeObject(pointsCubeObject, colorsCubeObject);
+
   const points = [];
   const colors = [];
-  buildColoredCube(points, colors);
+
+  // Append robot arm
+  points.push(...pointsRobotArm);
+  colors.push(...colorsRobotArm);
+
+  // Append cube object
+  points.push(...pointsCubeObject);
+  colors.push(...colorsCubeObject);
 
   const mesh = {
     position: renderer.createBuffer(points, 4),
@@ -61,17 +79,20 @@ window.onload = async function () {
   // ------------------ CAMERA ------------------
   const projection = ortho(-10, 10, -8, 8, -10, 10);
 
+  // ------------------ VIEW MATRIX ------------------
+  let viewMatrix = lookAt(vec3(8, 6, 10), vec3(0, 0, 0), vec3(0, 1, 0));
+
   // ------------------ FRAME LOOP ------------------
   function frame() {
     // Start frame
-    renderer.beginFrame(projection);
+    renderer.beginFrame(projection, viewMatrix);
 
     // Ask geometry what to draw
-    const drawList = computeRobotDrawList();
+    const drawList = [...computeRobotDrawList(), ...computeCubeDrawList()];
 
     // Submit draw commands
     for (const cmd of drawList) {
-      renderer.drawBox(mesh, cmd.modelMatrix, cmd.scale);
+      renderer.drawBox(mesh, cmd.modelMatrix, cmd.scale, cmd.offset, cmd.count);
     }
 
     requestAnimationFrame(frame);

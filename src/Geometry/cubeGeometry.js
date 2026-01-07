@@ -1,15 +1,4 @@
 // ==================================================
-// JOINT INDICES (KINEMATICS)
-// ==================================================
-export const BASE_JOINT = 0;
-export const UPPER_JOINT = 1;
-export const LOWER_JOINT = 2;
-export const GRIPPER_JOINT = 3;
-
-// Joint angles (degrees, driven externally)
-export const theta = [0, 0, 0, -40];
-
-// ==================================================
 // CUBE VERTEX COUNT & BUFFER START
 // ==================================================
 export const CUBE_VERTEX_COUNT = 36; // 6 faces × 2 triangles × 3 vertices
@@ -18,7 +7,7 @@ export const CUBE_OFFSET = 0;        // cube starts at beginning of buffer
 // ==================================================
 // GEOMETRY BUILD (SHARED CUBE MESH)
 // ==================================================
-export function buildRobotArm(points, colors) {
+export function buildCubeObject(points, colors) {
   const v = [
     vec4(-0.5, -0.5, 0.5, 1.0),
     vec4(-0.5, 0.5, 0.5, 1.0),
@@ -46,62 +35,20 @@ export function buildRobotArm(points, colors) {
 // ==================================================
 // ROBOT DIMENSIONS
 // ==================================================
-const BaseDims = { w: 5.5, h: 2.8, d: 3.5 };
-const ArmDims = { w: 0.7, h: 4.2, d: 0.7 };
-const GripDims = { w: 0.35, h: 2.0, d: 0.35 };
+const CubeDims = { w: 2.5, h: 2.5, d: 2.5 };
 // ==================================================
 // SCENE DESCRIPTION (PURE DATA)
 // ==================================================
-export function computeRobotDrawList() {
+export function computeCubeDrawList() {
   const draws = [];
 
   // World → base
   let M = mat4();
-  M = mult(M, translate(0, -6.5, 0));
+  M = mult(M, translate(6, -6.5, 0));
 
   // ---------------- BASE ----------------
-  M = mult(M, rotateY(theta[BASE_JOINT]));
-  draws.push(box(M, BaseDims));
+  draws.push(box(M, CubeDims));
 
-  // ---------------- UPPER ARM ----------------
-  M = mult(M, translate(0, BaseDims.h, 0));
-  M = mult(M, rotateZ(theta[UPPER_JOINT]));
-  draws.push(box(M, ArmDims));
-
-  // ---------------- LOWER ARM ----------------
-  M = mult(M, translate(0, ArmDims.h, 0));
-  M = mult(M, rotateZ(theta[LOWER_JOINT]));
-  draws.push(box(M, ArmDims));
-
-  // ---------------- GRIPPER JOINT ----------------
-  M = mult(M, translate(0, ArmDims.h, 0));
-  const joint = M;
-
-  // ---------------- LEFT FINGER ----------------
-  {
-    let F = joint;
-
-    // hinge rotation
-    F = mult(F, rotateZ(theta[GRIPPER_JOINT]));
-
-    // move cube so bottom face sits on hinge
-    F = mult(F, translate(0, GripDims.h / 2, 0));
-
-    draws.push(box(F, GripDims));
-  }
-
-  // ---------------- RIGHT FINGER ----------------
-  {
-    let F = joint;
-
-    // mirrored hinge rotation
-    F = mult(F, rotateZ(-theta[GRIPPER_JOINT]));
-
-    // move cube so bottom face sits on hinge
-    F = mult(F, translate(0, GripDims.h / 2, 0));
-
-    draws.push(box(F, GripDims));
-  }
   return draws;
 }
 
@@ -116,3 +63,4 @@ function box(modelMatrix, dims) {
     count: CUBE_VERTEX_COUNT,
   };
 }
+
