@@ -44,7 +44,7 @@ export function computeCubeDrawList() {
 
   // World → base
   let M = mat4();
-  M = mult(M, translate(6, -6.5, 0));
+  M = mult(M, translate(10, -6.5, 0));
 
   // ---------------- BASE ----------------
   draws.push(box(M, CubeDims));

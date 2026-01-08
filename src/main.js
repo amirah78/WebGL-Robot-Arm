@@ -7,7 +7,10 @@ import {
 } from "./Geometry/robotArmGeometry.js";
 import { createRenderer } from "./renderer.js";
 import { theta } from "./Geometry/robotArmGeometry.js";
-import { buildCubeObject, computeCubeDrawList } from "./Geometry/cubeGeometry.js";
+import {
+  buildCubeObject,
+  computeCubeDrawList,
+} from "./Geometry/cubeGeometry.js";
 
 function wireSliders() {
   document.getElementById("base").oninput = (e) =>
@@ -77,13 +80,67 @@ window.onload = async function () {
   };
 
   // ------------------ CAMERA ------------------
-  const projection = ortho(-10, 10, -8, 8, -10, 10);
+  const projection = ortho(-20, 20, -16, 16, -20, 20);
 
   // ------------------ VIEW MATRIX ------------------
   let viewMatrix = lookAt(vec3(8, 6, 10), vec3(0, 0, 0), vec3(0, 1, 0));
 
+  // ------------------ CAMERA STATE ------------------
+  let camera = {
+    radius: 15, // distance from target
+    yaw: Math.PI / 4, // left-right
+    pitch: Math.PI / 6, // up-down
+  };
+
+  const target = vec3(0, 0, 0); // look-at point
+
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  const sensitivity = 0.005;
+
+  canvas.addEventListener("mousedown", (e) => {
+    dragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+
+  canvas.addEventListener("mouseup", () => (dragging = false));
+  canvas.addEventListener("mouseleave", () => (dragging = false));
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    camera.yaw += dx * sensitivity;
+    camera.pitch -= dy * sensitivity; // inverted Y (mouse down = look up)
+
+    // clamp pitch to avoid flipping
+    const limit = Math.PI / 2 - 0.01;
+    camera.pitch = Math.max(-limit, Math.min(limit, camera.pitch));
+  });
+
+  function updateViewMatrix() {
+    const x = camera.radius * Math.cos(camera.pitch) * Math.sin(camera.yaw);
+    const y = camera.radius * Math.sin(camera.pitch);
+    const z = camera.radius * Math.cos(camera.pitch) * Math.cos(camera.yaw);
+
+    return lookAt(
+      vec3(x, y, z), // eye
+      target, // at
+      vec3(0, 1, 0) // up
+    );
+  }
+
   // ------------------ FRAME LOOP ------------------
   function frame() {
+    viewMatrix = updateViewMatrix();
+
     // Start frame
     renderer.beginFrame(projection, viewMatrix);
 

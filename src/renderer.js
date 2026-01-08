@@ -53,7 +53,7 @@ export function createRenderer(gl, program) {
 
     const MV = mult(viewMatrix, M);
 
-    gl.uniformMatrix4fv(uniforms.modelViewMatrix, false, flatten(M));
+    gl.uniformMatrix4fv(uniforms.modelViewMatrix, false, flatten(MV));
 
     bindAttribute(mesh.position, attribs.position);
     bindAttribute(mesh.color, attribs.color);
