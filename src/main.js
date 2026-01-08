@@ -80,7 +80,7 @@ window.onload = async function () {
   };
 
   // ------------------ CAMERA ------------------
-  const projection = ortho(-20, 20, -16, 16, -20, 20);
+  const projection = ortho(-20, 20, -16, 16, -50, 50);
 
   // ------------------ VIEW MATRIX ------------------
   let viewMatrix = lookAt(vec3(8, 6, 10), vec3(0, 0, 0), vec3(0, 1, 0));
